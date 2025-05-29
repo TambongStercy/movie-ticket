@@ -54,7 +54,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     ?>"><?php echo escape(ucfirst($booking['payment_status'])); ?></span>
                                 <?php if ($booking['payment_status'] === 'confirmed'): ?>
                                     <a href="download_ticket.php?booking_id=<?php echo $booking['id']; ?>"
-                                        class="ml-2 btn-magic text-xs">Download Ticket</a>
+                                        class="ml-2 btn-magic px-3 py-1 text-xs">Download Ticket</a>
                                 <?php endif; ?>
                             </td>
                         </tr>

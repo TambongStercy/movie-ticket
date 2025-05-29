@@ -2,13 +2,9 @@
 require_once __DIR__ . '/includes/auth_check_user.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/sidebar.php';
 
 $booking_id = isset($_GET['booking_id']) ? (int) $_GET['booking_id'] : 0;
 $booking = null;
-$showtime = null;
-$movie = null;
 $error = '';
 
 if ($booking_id > 0) {
@@ -17,8 +13,14 @@ if ($booking_id > 0) {
     $booking = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 if (!$booking) {
+    require_once __DIR__ . '/../includes/header.php';
     echo '<div class="container mx-auto px-4 py-8"><div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md text-center"><div class="text-red-600 font-semibold">Booking not found.</div></div></div>';
     require_once __DIR__ . '/../includes/footer.php';
+    exit;
+}
+
+if ($booking['payment_status'] === 'confirmed') {
+    header('Location: booking_confirmation.php?booking_id=' . $booking_id);
     exit;
 }
 
@@ -28,6 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare('UPDATE bookings SET payment_status = ? WHERE id = ? AND user_id = ?');
         $stmt->execute([$status, $booking_id, $_SESSION['user_id']]);
         if ($status === 'confirmed') {
+            // Generate transaction_ref if not set
+            if (empty($booking['transaction_ref'])) {
+                $transaction_ref = strtoupper(bin2hex(random_bytes(8)));
+                $stmt = $pdo->prepare('UPDATE bookings SET transaction_ref = ? WHERE id = ?');
+                $stmt->execute([$transaction_ref, $booking_id]);
+            }
             header('Location: booking_confirmation.php?booking_id=' . $booking_id);
             exit;
         } else {
@@ -35,6 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 <div class="flex">
     <div class="w-full min-h-screen p-8 bg-[#18181c] pt-20 md:ml-[240px]">

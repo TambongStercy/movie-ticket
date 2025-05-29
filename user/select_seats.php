@@ -90,7 +90,7 @@ $csrf_token = generateCsrfToken();
                                             } elseif ($is_disabled) {
                                                 $seat_class = 'bg-red-600 border-red-600';
                                             } else {
-                                                $seat_class = 'bg-green-600 border-green-600';
+                                                $seat_class = 'bg-white border-gray-300';
                                             }
                                             echo '<label class="inline-flex flex-col items-center mx-1 cursor-pointer">';
                                             echo '<input type="checkbox" name="selected_seats[]" value="' . escape($seat) . '"' . ($is_booked || $is_disabled ? ' disabled' : '') . ' class="seat-checkbox sr-only" />';
@@ -113,7 +113,7 @@ $csrf_token = generateCsrfToken();
                                         } elseif ($is_disabled) {
                                             $seat_class = 'bg-red-600 border-red-600';
                                         } else {
-                                            $seat_class = 'bg-green-600 border-green-600';
+                                            $seat_class = 'bg-white border-gray-300';
                                         }
                                         echo '<label class="inline-flex flex-col items-center cursor-pointer">';
                                         echo '<input type="checkbox" name="selected_seats[]" value="' . escape($seat) . '"' . ($is_booked || $is_disabled ? ' disabled' : '') . ' class="seat-checkbox sr-only" />';
@@ -128,13 +128,13 @@ $csrf_token = generateCsrfToken();
                         </div>
                         <div class="flex flex-wrap gap-4 justify-center items-center mt-4 mb-2 text-xs">
                             <span class="flex items-center"><span
-                                    class="inline-block w-5 h-5 rounded-full bg-green-600 border-2 border-green-600 mr-1"></span>Available</span>
+                                    class="inline-block w-5 h-5 rounded-full bg-white border-2 border-gray-300 mr-1"></span>Available</span>
                             <span class="flex items-center"><span
                                     class="inline-block w-5 h-5 rounded-full bg-[#55524a] border-2 border-[#55524a] mr-1"></span>Booked</span>
                             <span class="flex items-center"><span
                                     class="inline-block w-5 h-5 rounded-full bg-red-600 border-2 border-red-600 mr-1"></span>Disabled</span>
                             <span class="flex items-center"><span
-                                    class="inline-block w-5 h-5 rounded-full border-2 border-yellow-400 mr-1"></span>Selected</span>
+                                    class="inline-block w-5 h-5 rounded-full bg-green-600 border-yellow-400 mr-1"></span>Selected</span>
                         </div>
                         <div class="flex justify-center">
                             <button type="submit" class="btn-magic px-4 py-2 text-sm">Book Selected Seats</button>
@@ -154,14 +154,14 @@ $csrf_token = generateCsrfToken();
                                     const cb = label.querySelector('.seat-checkbox');
                                     const seat = label.querySelector('.custom-seat');
                                     if (!cb || !seat) return;
-                                    if (cb.checked && !cb.disabled) {
-                                        seat.classList.remove('bg-green-600', 'border-green-600');
-                                        seat.classList.add('border-yellow-400');
-                                        seat.style.backgroundColor = 'transparent';
-                                    } else if (!cb.disabled) {
-                                        seat.classList.remove('border-yellow-400');
-                                        seat.classList.add('bg-green-600', 'border-green-600');
-                                        seat.style.backgroundColor = '';
+                                    if (!cb.disabled) {
+                                        if (cb.checked) {
+                                            seat.classList.remove('bg-white', 'border-gray-300');
+                                            seat.classList.add('bg-green-600', 'border-green-600');
+                                        } else {
+                                            seat.classList.remove('bg-green-600', 'border-green-600');
+                                            seat.classList.add('bg-white', 'border-gray-300');
+                                        }
                                     }
                                 });
                             }
