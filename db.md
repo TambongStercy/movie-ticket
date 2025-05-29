@@ -17,6 +17,10 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ ALTER TABLE users
+    ADD COLUMN password_reset_token VARCHAR(64) NULL,
+    ADD COLUMN password_reset_expires DATETIME NULL;
+
 CREATE TABLE movies (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
@@ -71,3 +75,8 @@ CREATE TABLE bookings (
     FOREIGN KEY (showtime_id) REFERENCES showtimes(id) ON DELETE CASCADE
 );
 
+
+ALTER TABLE bookings MODIFY transaction_ref VARCHAR(32) NULL;
+
+
+ALTER TABLE movies ADD COLUMN cover_image_path VARCHAR(255) NULL AFTER poster_image_path;
