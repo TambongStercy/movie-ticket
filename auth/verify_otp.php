@@ -100,7 +100,8 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="flex gap-2">
                 <button type="submit" class="flex-1 btn-magic">Verify OTP</button>
                 <button type="submit" name="resend" value="1"
-                    class="flex-1 btn-magic bg-gray-700 hover:bg-gray-600 text-gray-200">Resend OTP</button>
+                    class="flex-1 btn-magic bg-gray-700 hover:bg-gray-600 text-gray-200" id="resend-btn">Resend
+                    OTP</button>
             </div>
         </form>
         <div class="mt-6">
@@ -108,4 +109,9 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('resend-btn').addEventListener('click', function () {
+    document.getElementById('otp').removeAttribute('required');
+    });
+</script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
