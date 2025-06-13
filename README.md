@@ -10,19 +10,19 @@ A modern, responsive web application for booking movie tickets online, built wit
 - Register, login (with Google OAuth or email/password), and logout
 - View movies in a Netflix-style dashboard (carousel, top rated, genres, popular)
 - Search and filter movies by title, genre, and rating
-- View detailed movie info (poster, description, cast, director, genre, duration, release date, category, max age, ratings)
-- Rate movies (1-5 stars + comment), see average/user rating
-- Book tickets for showtimes (with seat selection UI that matches cinema hall layout)
+- View detailed movie info (poster, cover image, description, cast, director, genre, duration, release date, category, max age, ratings)
+- Rate movies (1-5 stars + comment) with an interactive star rating UI, see average/user rating
+- Book tickets for showtimes (with a dynamic seat selection UI that matches cinema hall layout, displaying available, booked, and disabled seats based on admin configuration)
 - Simulate payment (success/failure)
 - Receive PDF ticket by email after booking confirmation
 - Download ticket PDF from booking history
 - View booking history
-- Edit user profile (profile picture, phone, address)
+- Edit user profile (profile picture with live preview and validation for type/size, phone, address). Note: Email cannot be changed from the profile page, and username uniqueness is enforced.
 
 ### Admin Features
 - Admin dashboard with quick links
-- Manage movies (add, edit, delete, upload poster)
-- Manage theatres/screens (add, edit, delete, set seat layout)
+- Manage movies (add, edit, delete, upload poster and cover images with validation for file type and size)
+- Manage theatres/screens (add, edit, delete, set custom seat layout via JSON, including marking seats as disabled)
 - Manage showtimes (add, edit, delete, set price in FCFA)
 - Manage users (search, filter, edit, delete)
 - View all bookings (with user, movie, seats, status, ticket download)
@@ -32,13 +32,13 @@ A modern, responsive web application for booking movie tickets online, built wit
 - Sidebar and navbar adapt to screen size
 - All forms and tables are mobile-friendly
 - Uses Tailwind CSS for modern UI
-- Secure: CSRF protection, XSS prevention, password hashing
+- Secure: CSRF protection (via `generateCsrfToken` and `validateCsrfToken` functions), XSS prevention (via `escape` function), password hashing
 - All emails and PDFs use PHPMailer and FPDF (via Composer)
 
 ---
 
 ## Tech Stack
-- **Backend:** PHP 7+ (PDO, sessions)
+- **Backend:** PHP 7+ (PDO, sessions, Dotenv library for environment variables)
 - **Frontend:** Tailwind CSS, custom CSS
 - **Database:** MySQL (see schema below)
 - **PDF/Email:** FPDF, PHPMailer (installed via Composer)
@@ -71,11 +71,11 @@ movie_ticket_booking/
 
 ## Database Schema (MySQL)
 
-- **users**: id, username, email, password_hash, role, google_id, profile_picture, phone, address, created_at
+- **users**: id, username, email, password_hash, role, google_id, profile_picture, phone, address, otp_code, otp_expires_at, password_reset_token, password_reset_expires, created_at
 - **movies**: id, title, description, director, cast, genre, duration_minutes, release_date, poster_image_path, cover_image_path, category, max_age, created_at, updated_at
 - **theatres**: id, name, capacity, seat_layout (JSON)
 - **showtimes**: id, movie_id, theatre_id, show_datetime, price_per_seat (FCFA), created_at
-- **bookings**: id, user_id, showtime_id, num_seats, booked_seats, total_amount (FCFA), booking_timestamp, payment_status, transaction_ref
+- **bookings**: id, user_id, showtime_id, num_seats, booked_seats, total_amount (FCFA), booking_timestamp, payment_status, transaction_ref (VARCHAR 32, can be NULL)
 - **movie_ratings**: id, user_id, movie_id, rating (1-5), comment, created_at
 
 See `db.md` for full SQL DDL.
@@ -94,6 +94,7 @@ See `db.md` for full SQL DDL.
    ```
 3. **Create `.env` file:** (copy `.env.example` if available)
    - Set DB credentials, SMTP (for email), Google OAuth keys
+   - **Note:** The application uses `Dotenv` to load these variables. Ensure your `.env` file is in the project root.
    - Example:
      ```
      DB_HOST=localhost
@@ -129,19 +130,22 @@ See `db.md` for full SQL DDL.
 
 1. **Register/Login:**
    - Users can register with email/password or Google OAuth.
-2. **Browse Movies:**
+   - **For email/password logins, an OTP (One-Time Password) is sent to the registered email for verification as a second factor of authentication.**
+2. **Password Reset:**
+   - Users can initiate a password reset if they forget their password, which involves email verification and a secure token.
+3. **Browse Movies:**
    - See featured carousel, top rated, genres, and all movies.
-3. **Search/Filter:**
+4. **Search/Filter:**
    - Use the search page to filter by title, genre, or rating.
-4. **View Details:**
-   - Click a movie to see details, ratings, and available showtimes.
-5. **Book Tickets:**
+5. **View Details:**
+   - Click a movie to see details, ratings, and available showtimes (only future showtimes are displayed).
+6. **Book Tickets:**
    - Select a showtime, pick seats (cinema-style UI), and book.
-6. **Simulate Payment:**
+7. **Simulate Payment:**
    - Choose payment success/failure. On success, booking is confirmed.
-7. **Receive Ticket:**
-   - PDF ticket is generated and emailed. Can also download from booking history.
-8. **Profile:**
+8. **Receive Ticket:**
+   - PDF ticket is generated (using `generateMovieTicketPDF` function) and emailed. Can also download from booking history.
+9. **Profile:**
    - Edit profile info and picture.
 
 ---
@@ -164,7 +168,7 @@ See `db.md` for full SQL DDL.
 ## Customization & Tips
 
 - **Currency:** All prices are in FCFA by default. Change labels in PHP if needed.
-- **Seat Layouts:** Admin can define custom seat layouts per theatre (rows, seats per row, disabled seats) using JSON.
+- **Seat Layouts:** Admin can define detailed custom seat layouts per theatre using JSON, specifying rows, seats per row, and individual disabled seats. This dynamic layout is rendered in the user-facing seat selection interface.
 - **Email:** Uses Gmail SMTP by default. You can use any SMTP server by updating `.env`.
 - **Security:**
   - All forms have CSRF protection.

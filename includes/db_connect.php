@@ -1,8 +1,8 @@
 <?php
-define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '12345');
-define('DB_NAME', 'movie_booking_db');
+define('DB_SERVER', getenv('DB_HOST'));
+define('DB_USERNAME', getenv('DB_USER'));
+define('DB_PASSWORD', getenv('DB_PASS'));
+define('DB_NAME', getenv('DB_NAME'));
 
 // Using PDO for better security (prevents SQL injection with prepared statements)
 try {
